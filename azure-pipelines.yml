@@ -9,8 +9,9 @@ steps:
   inputs:
     ansibleInterface: 'remoteMachine'
     connectionOverSsh: 'ansible'
-    playbookSourceRemoteMachine: 'ansibleMachine'
-    playbookPathAnsibleMachineOnRemoteMachine: 'ansible/test.yaml'
+    playbookSourceRemoteMachine: 'agentMachine'
+    playbookRootRemoteMachine: '$(Build.SourcesDirectory)'
+    playbookPathLinkedArtifactOnRemoteMachine: 'kubernetes/kubernetes.yaml'
     inventoriesRemoteMachine: 'file'
-    inventoryFileSourceRemoteMachine: 'ansibleMachine'
-    inventoryFileAnsibleMachineOnRemoteMachine: 'ansible/inventory/hosts'
+    inventoryFileSourceRemoteMachine: 'agentMachine'
+    inventoryFileLinkedArtifactOnRemoteMachine: 'kubernetes/inventory/hosts'
