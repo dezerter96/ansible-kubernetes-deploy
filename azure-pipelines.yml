@@ -2,7 +2,8 @@ trigger:
 - none
 
 pool:
-  vmImage: ubuntu-latest
+  name: lab
+  
 steps:
 - task: Ansible@0
   inputs:
