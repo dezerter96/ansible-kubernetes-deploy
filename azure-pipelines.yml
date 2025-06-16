@@ -1,0 +1,20 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+- task: Ansible@0
+  inputs:
+    ansibleInterface: 'remoteMachine'
+    connectionOverSsh: 'ansible'
+    playbookSourceRemoteMachine: 'ansibleMachine'
+    playbookPathAnsibleMachineOnRemoteMachine: 'ansible/test.yaml'
+    inventoriesRemoteMachine: 'file'
+    inventoryFileSourceRemoteMachine: 'ansibleMachine'
+    inventoryFileAnsibleMachineOnRemoteMachine: 'ansible/inventory/hosts'
