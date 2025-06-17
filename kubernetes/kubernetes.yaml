@@ -51,4 +51,6 @@
       src: /etc/containerd/config.toml
       dest: /etc/containerd/config.toml.bkp
 
-    
+  - name: Install containerd
+    ansible.builtin.shell:
+      cmd: containerd config default ＞ /etc/containerd/config.toml
