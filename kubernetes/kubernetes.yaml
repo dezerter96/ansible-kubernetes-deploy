@@ -108,14 +108,14 @@
 
   - name: Make directory
     ansible.builtin.file:
-      path: $HOME/.kube
+      path: /home/kube/.kube
       state: directory
       mode: '0755'
 
   - name: Coppy configuration
     ansible.builtin.copy:
       src: /etc/kubernetes/admin.conf
-      dest: $HOME/.kube/config
+      dest: /home/kube/.kube/config
       owner: kube
       group: kube
       mode: '0644'
