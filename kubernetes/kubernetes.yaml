@@ -54,3 +54,68 @@
   - name: Install containerd
     ansible.builtin.shell:
       cmd: containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+
+  - name: Change SystemdCgroup to true
+    ansible.builtin.lineinfile:
+      path: /etc/containerd/config.toml
+      regexp: '^SystemdCgroup\s*=\s*false'
+      line: 'SystemdCgroup = true'
+      state: present
+
+  - name: Restart containerd service and set service to enable
+    ansible.builtin.systemd_service:
+      state: restarted
+      name: containerd
+      enabled: true
+
+  - name:  Add repo for kubernetes
+    ansible.builtin.copy:
+      dest: /etc/yum.repos.d/kubernetes.repo
+      content: |
+        [kubernetes]
+        name=Kubernetes
+        baseurl=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+        enabled=1
+        gpgcheck=1
+        gpgkey=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+        exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name:  Install kubernetes tools
+    yum:
+      name:
+        - kubelet
+        - kubeadm
+        - kubectl
+      state: present
+      disable_excludes: kubernetes
+
+  - name:  Enable kubelet service
+    ansible.builtin.systemd_service:
+      name: kubelet
+      enabled: true
+
+  - name: Adding user kubelet
+    ansible.builtin.user:
+      name: kube
+      groups: wheel
+      create_home: yes
+      update_password: always
+      password: test
+      state: true
+
+  - name: Make directory
+    ansible.builtin.file:
+      path: $HOME/.kube
+      state: directory
+      mode: '0755'
+
+  - name: Coppy configuration
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: $HOME/.kube/config
+      owner: kube
+      group: kube
+      mode: '0644'
