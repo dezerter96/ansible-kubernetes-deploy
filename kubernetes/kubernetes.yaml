@@ -124,6 +124,5 @@
   - name: Run kubeadm-config.yaml
     ansible.builtin.shell:
       cmd: |
-        pwd
-        kubeadm init --config=kubeadm-config.yaml
+        kubeadm init --config=cluster/kubeadm-config.yaml
     when: inventory_hostname == 'master'
