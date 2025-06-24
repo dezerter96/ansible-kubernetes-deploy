@@ -59,7 +59,7 @@
     ansible.builtin.lineinfile:
       path: /etc/containerd/config.toml
       regexp: '\s*SystemdCgroup\s*=\s*false'
-      line: 'SystemdCgroup = true'
+      line: '\t    SystemdCgroup = true'
       state: present
 
   - name: Restart containerd service and set service to enable
