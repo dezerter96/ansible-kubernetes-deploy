@@ -58,7 +58,7 @@
   - name: Change SystemdCgroup to true
     ansible.builtin.lineinfile:
       path: /etc/containerd/config.toml
-      regexp: '^SystemdCgroup\s*=\s*false'
+      regexp: '\s*SystemdCgroup\s*=\s*false'
       line: 'SystemdCgroup = true'
       state: present
 
