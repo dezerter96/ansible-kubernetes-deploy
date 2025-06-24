@@ -97,14 +97,14 @@
       name: kubelet
       enabled: true
 
-  - name: Adding user kubelet
+  - name: Adding user kube
     ansible.builtin.user:
       name: kube
       groups: wheel
       create_home: yes
       update_password: always
       password: test
-      state: true
+      state: present
 
   - name: Make directory
     ansible.builtin.file:
