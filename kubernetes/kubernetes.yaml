@@ -121,8 +121,18 @@
   #     mode: '0644'
   #     remote_src: true
 
+  - name: Coppy file
+    ansible.builtin.copy:
+      src: cluster/kubeadm-config.yaml
+      dest: /home/kube/
+      owner: kube
+      group: kube
+      mode: '0644'
+      remote_src: true
+
   - name: Run kubeadm-config.yaml
     ansible.builtin.shell:
       cmd: |
-        kubeadm init --config=cluster/kubeadm-config.yaml
+        cd /home/kube/ &&
+        kubeadm init --config=kubeadm-config.yaml
     when: inventory_hostname == 'master'
