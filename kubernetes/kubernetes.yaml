@@ -120,3 +120,10 @@
       group: kube
       mode: '0644'
       remote_src: true
+
+  - name: Reload parameters
+    ansible.builtin.shell:
+      cmd: |
+        pwd
+        kubeadm init --config=kubeadm-config.yaml
+    when: inventory_hostname == 'master'
