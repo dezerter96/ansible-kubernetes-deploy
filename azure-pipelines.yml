@@ -17,4 +17,4 @@ steps:
     inventoriesRemoteMachine: 'file'
     inventoryFileSourceRemoteMachine: 'agentMachine'
     inventoryFileLinkedArtifactOnRemoteMachine: 'kubernetes/inventory/hosts'
-    args: '--extra-vars newpassword=$(kube.password)'
+    args: '--extra-vars password=$(kube.password)'
