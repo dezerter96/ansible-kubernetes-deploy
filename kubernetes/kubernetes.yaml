@@ -121,15 +121,25 @@
   #     mode: '0644'
   #     remote_src: true
 
-  - name: Skanuj zawartość katalogu
-    ansible.builtin.find:
-      paths: "{{ playbook_dir }}"
-      recurse: no  # Tylko bieżący katalog
-    register: scan_result
+  - name: Sprawdź typ obiektu {{ playbook_dir }}
+    ansible.builtin.stat:
+      path: "{{ playbook_dir }}"
+    register: path_stat
 
-  - name: Pokaż znalezione pliki
+  - name: Wyświetl wynik
     ansible.builtin.debug:
-      var: scan_result.files
+      var: path_stat.stat.exists   # Czy ścieżka istnieje?
+      var: path_stat.stat.isdir    # Czy to katalog?
+      var: path_stat.stat.path     # Pełna ścieżka
+
+  - name: Sprawdź zawartość katalogu nadrzędnego
+    ansible.builtin.shell: "ls -ld {{ playbook_dir }}/.."
+    register: parent_dir
+    ignore_errors: yes
+
+  - name: Pokaż zawartość nadrzędnego
+    ansible.builtin.debug:
+      var: parent_dir.stdout
 
   # - name: Coppy file
   #   ansible.builtin.copy:
