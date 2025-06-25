@@ -128,8 +128,6 @@
       owner: kube
       group: kube
       mode: '0644'
-      remote_src: yes 
-    delegate_to: "{{ inventory_hostname }}"
     when: inventory_hostname == 'master'
 
   # - name: Run kubeadm-config.yaml
