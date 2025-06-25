@@ -123,16 +123,16 @@
 
   - name: Copy kubeadm-config.yaml to master
     ansible.builtin.copy:
-      src: "/home/automation/cluster/kubeadm-config.yaml"
+      src: "/share/cluster/kubeadm-config.yaml"
       dest: /home/kube/
       owner: kube
       group: kube
       mode: '0644'
     when: inventory_hostname == 'master'
 
-  # - name: Run kubeadm-config.yaml
-  #   ansible.builtin.shell:
-  #     cmd: |
-  #       cd /home/kube/ &&
-  #       kubeadm init --config=kubeadm-config.yaml
-  #   when: inventory_hostname == 'master'
+  - name: Run kubeadm-config.yaml
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/ &&
+        kubeadm init --config=kubeadm-config.yaml
+    when: inventory_hostname == 'master'

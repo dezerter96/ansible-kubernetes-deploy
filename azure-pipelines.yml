@@ -13,6 +13,7 @@ steps:
     targetType: 'inline'
     script: 'cp -r kubernetes/cluster /share/'
     workingDirectory: '$(Build.SourcesDirectory)'
+  displayName: Coppy cluster fille
 
 - task: Ansible@0
   inputs:
@@ -25,3 +26,10 @@ steps:
     inventoryFileSourceRemoteMachine: 'agentMachine'
     inventoryFileLinkedArtifactOnRemoteMachine: 'kubernetes/inventory/hosts'
     args: --extra-vars '{"password":"$(kube.password)", "build_dir":"$(Build.SourcesDirectory)"}'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'rm -rf /share/cluster'
+    workingDirectory: '$(Build.SourcesDirectory)'
+  displayName: Delete cluster fille
