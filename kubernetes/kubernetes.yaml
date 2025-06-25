@@ -120,6 +120,15 @@
   #     group: kube
   #     mode: '0644'
   #     remote_src: true
+  - name: Accept 6443 10250 port
+    ansible.posix.firewalld:
+      port: "{{ item }}/tcp"
+      permanent: true
+      state: enabled
+      immediate: true
+    loop:
+      - 6443
+      - 10250
 
   - name: Copy kubeadm-config.yaml to master
     ansible.builtin.copy:
