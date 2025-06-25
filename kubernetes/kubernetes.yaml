@@ -123,7 +123,7 @@
 
   - name: Coppy file
     ansible.builtin.copy:
-      src: "{{ playbook_dir }}/kubernetes.yaml"
+      src: "{{ build_dir }}/kubernetes/cluster/kubeadm-config.yaml"
       dest: /home/kube/
       owner: kube
       group: kube
