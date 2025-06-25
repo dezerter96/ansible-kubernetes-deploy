@@ -121,9 +121,9 @@
   #     mode: '0644'
   #     remote_src: true
 
-  - name: Coppy file
+  - name: Copy kubeadm-config.yaml to master
     ansible.builtin.copy:
-      src: "{{ build_dir }}/kubernetes/cluster/kubeadm-config.yaml"
+      src: "{{ playbook_dir }}/../cluster/kubeadm-config.yaml"
       dest: /home/kube/
       owner: kube
       group: kube
