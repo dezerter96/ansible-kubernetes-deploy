@@ -13,4 +13,4 @@ localAPIEndpoint:
   bindPort: 6443
 nodeRegistration:
   kubeletExtraArgs:
-    node-ip: 192.168.5.101
+    node-ip: 192.168.5.100
