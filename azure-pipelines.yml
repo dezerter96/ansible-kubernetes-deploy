@@ -11,9 +11,9 @@ steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'cp -r kubernetes/cluster /home/automation'
+    script: 'cp -r kubernetes/cluster /share/'
     workingDirectory: '$(Build.SourcesDirectory)'
-    
+
 - task: Ansible@0
   inputs:
     ansibleInterface: 'remoteMachine'
