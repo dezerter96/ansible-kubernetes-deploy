@@ -120,6 +120,18 @@
   #     group: kube
   #     mode: '0644'
   #     remote_src: true
+
+  - name: Delete swap
+    ansible.builtin.lineinfile:
+      path: /etc/fstab
+      regexp: '^/dev/mapper/vg_root-lv_swap.*'
+      state: absent
+
+  - name: Disable swap
+    ansible.builtin.shell:
+      cmd: |
+        swapoff -a
+
   - name: Accept 6443 10250 port
     ansible.posix.firewalld:
       port: "{{ item }}/tcp"
