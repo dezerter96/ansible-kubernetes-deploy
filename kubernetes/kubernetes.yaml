@@ -157,6 +157,7 @@
         cd /home/kube/ &&
         kubeadm init --config=kubeadm-config.yaml
     when: inventory_hostname == 'master'
+    register: kubeadm_output
 
   - name: Extract join token
     ansible.builtin.set_fact:
@@ -172,3 +173,8 @@
     ansible.builtin.set_fact:
       kubeadm_api_endpoint: "{{ kubeadm_output.stdout | regex_search('kubeadm join ([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+)', '\\1') | first }}"
     when: inventory_hostname == 'master'
+
+  - name: Join worker nodes to cluster
+    ansible.builtin.shell:
+      cmd: "kubeadm join 192.168.0.100 --token {{ kubeadm_join_token }} --discovery-token-ca-cert-hash {{ kubeadm_ca_cert_hash }}"
+    when: inventory_hostname != 'master'
