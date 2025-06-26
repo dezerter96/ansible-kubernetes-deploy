@@ -157,3 +157,18 @@
         cd /home/kube/ &&
         kubeadm init --config=kubeadm-config.yaml
     when: inventory_hostname == 'master'
+
+  - name: Extract join token
+    ansible.builtin.set_fact:
+      kubeadm_join_token: "{{ kubeadm_output.stdout | regex_search('--token ([a-zA-Z0-9]+\\.[a-zA-Z0-9]+)', '\\1') | first }}"
+    when: inventory_hostname == 'master'
+
+  - name: Extract discovery token ca-cert-hash
+    ansible.builtin.set_fact:
+      kubeadm_ca_cert_hash: "{{ kubeadm_output.stdout | regex_search('--discovery-token-ca-cert-hash (sha256:[a-f0-9]+)', '\\1') | first }}"
+    when: inventory_hostname == 'master'
+
+  - name: Extract API server endpoint
+    ansible.builtin.set_fact:
+      kubeadm_api_endpoint: "{{ kubeadm_output.stdout | regex_search('kubeadm join ([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+)', '\\1') | first }}"
+    when: inventory_hostname == 'master'
