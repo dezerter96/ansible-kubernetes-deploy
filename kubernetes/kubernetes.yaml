@@ -159,11 +159,21 @@
     when: inventory_hostname == 'master'
     register: kubeadm_output
 
+  - name: Debug variables
+    debug:
+      var: "{{ kubeadm_output.stdout }}"
+    when: inventory_hostname == 'master'
+
   - name: Extract join details (MASTER ONLY)
     ansible.builtin.set_fact:
       kubeadm_join_token: "{{ kubeadm_output.stdout | regex_search('--token ([a-zA-Z0-9\\.]+)', '\\1') | first }}"
       kubeadm_ca_cert_hash: "{{ kubeadm_output.stdout | regex_search('--discovery-token-ca-cert-hash (sha256:[a-f0-9]+)', '\\1') | first }}"
       kubeadm_api_endpoint: "{{ kubeadm_output.stdout | regex_search('([0-9\\.]+:[0-9]+)', '\\1') | first }}"
+    when: inventory_hostname == 'master'
+
+  - name: Debug variables
+    debug:
+      var: "{{ kubeadm_join_token }}"
     when: inventory_hostname == 'master'
 
   - name: Share join details with workers
