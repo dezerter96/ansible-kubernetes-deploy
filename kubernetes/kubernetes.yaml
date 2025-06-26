@@ -151,7 +151,7 @@
       mode: '0644'
     when: inventory_hostname == 'master'
 
-  - name: Run kubeadm-config.yaml
+  - name: Run kubeadm init on master
     ansible.builtin.shell:
       cmd: |
         cd /home/kube/ &&
