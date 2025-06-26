@@ -159,31 +159,18 @@
     when: inventory_hostname == 'master'
     register: kubeadm_output
 
-  - name: Debug variables
-    debug:
-      var: "{{ kubeadm_output.stdout }}"
-    when: inventory_hostname == 'master'
-
   - name: Extract join details (MASTER ONLY)
     ansible.builtin.set_fact:
-      kubeadm_join_token: "{{ kubeadm_output.stdout | regex_search('--token ([a-zA-Z0-9\\.]+)', '\\1') | first }}"
-      kubeadm_ca_cert_hash: "{{ kubeadm_output.stdout | regex_search('--discovery-token-ca-cert-hash (sha256:[a-f0-9]+)', '\\1') | first }}"
-      kubeadm_api_endpoint: "{{ kubeadm_output.stdout | regex_search('([0-9\\.]+:[0-9]+)', '\\1') | first }}"
+      kubeadm_join_command: >-
+        {{ kubeadm_output.stdout | regex_search('kubeadm join.*\n.*', multiline=True) | trim }}
     when: inventory_hostname == 'master'
 
-  - name: Debug variables
-    debug:
-      var: "{{ kubeadm_join_token }}"
-    when: inventory_hostname == 'master'
-
-  - name: Share join details with workers
+  - name: Share join command with workers
     ansible.builtin.set_fact:
-      join_token: "{{ hostvars['master']['kubeadm_join_token'] }}"
-      ca_cert_hash: "{{ hostvars['master']['kubeadm_ca_cert_hash'] }}"
-      api_endpoint: "{{ hostvars['master']['kubeadm_api_endpoint'] }}"
+      join_command: "{{ hostvars['master']['kubeadm_join_command'] }}"
     when: inventory_hostname != 'master'
 
   - name: Join worker nodes to cluster
     ansible.builtin.shell:
-      cmd: "kubeadm join 192.168.0.100 --token {{ join_token }} --discovery-token-ca-cert-hash {{ ca_cert_hash }}"
+      cmd: "{{ join_command }}"
     when: inventory_hostname != 'master'
