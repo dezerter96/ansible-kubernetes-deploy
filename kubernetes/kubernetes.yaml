@@ -190,6 +190,8 @@
       cmd: |
         kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/^Ctallb-native.yaml
     when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
 
   - name: Config metallb
     ansible.builtin.shell:
@@ -197,6 +199,8 @@
         cd /home/kube/cluster &&
         kubectl apply -f metallb-addr-pool.yaml
     when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
 
   - name: Config metallb
     ansible.builtin.shell:
@@ -204,3 +208,5 @@
         cd /home/kube/cluster &&
         kubectl apply -f metallb-advertise.yaml
     when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
