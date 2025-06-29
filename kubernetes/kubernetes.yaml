@@ -188,7 +188,7 @@
   - name: Install metallb
     ansible.builtin.shell:
       cmd: |
-        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/^Ctallb-native.yaml
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/refs/heads/main/config/manifests/metallb-native.yaml
     when: inventory_hostname == 'master'
     become: true
     become_user: kube
