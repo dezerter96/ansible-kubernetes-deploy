@@ -179,6 +179,23 @@
       remote_src: true
     when: inventory_hostname == 'master'
 
+  - name: Install calico
+    ansible.builtin.shell:
+      cmd: |
+        kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/tigera-operator.yaml
+    when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
+
+  - name: Config calico
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/cluster &&
+        kubectl apply -f custom-resources.yaml
+    when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
+
   - name: Install metallb
     ansible.builtin.shell:
       cmd: |
