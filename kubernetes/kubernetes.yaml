@@ -144,17 +144,20 @@
 
   - name: Copy kubeadm-config.yaml to master
     ansible.builtin.copy:
-      src: "/share/cluster/kubeadm-config.yaml"
+      src: "/share/cluster"
       dest: /home/kube/
       owner: kube
       group: kube
       mode: '0644'
     when: inventory_hostname == 'master'
 
+  - name: Reboot
+    ansible.builtin.reboot:
+
   - name: Run kubeadm init on master
     ansible.builtin.shell:
       cmd: |
-        cd /home/kube/ &&
+        cd /home/kube/cluster &&
         kubeadm init --config=kubeadm-config.yaml
     when: inventory_hostname == 'master'
     register: kubeadm_output
@@ -174,3 +177,23 @@
     ansible.builtin.shell:
       cmd: "{{ join_command }}"
     when: inventory_hostname != 'master'
+
+  - name: Install metallb
+    ansible.builtin.shell:
+      cmd: |
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/^Ctallb-native.yaml
+    when: inventory_hostname == 'master'
+
+  - name: Config metallb
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/cluster &&
+        kubectl apply -f metallb-addr-pool.yaml
+    when: inventory_hostname == 'master'
+
+  - name: Config metallb
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/cluster &&
+        kubectl apply -f metallb-advertise.yaml
+    when: inventory_hostname == 'master'
