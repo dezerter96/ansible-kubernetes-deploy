@@ -25,7 +25,7 @@ steps:
     inventoriesRemoteMachine: 'file'
     inventoryFileSourceRemoteMachine: 'agentMachine'
     inventoryFileLinkedArtifactOnRemoteMachine: 'kubernetes/inventory/hosts'
-    args: --extra-vars '{"password":"$(kube.password)", "build_dir":"$(Build.SourcesDirectory)"}'
+    args: --extra-vars '{"password":"$(kube.password)", "build_dir":"$(Build.SourcesDirectory)"}' -vv
 
 - task: Bash@3
   inputs:
