@@ -136,15 +136,6 @@
       mode: '0644'
     when: inventory_hostname == 'master'
 
-  - name: Make directory
-    ansible.builtin.file:
-      path: /home/kube/.kube
-      state: directory
-      mode: '0755'
-
-  - name: Reboot
-    ansible.builtin.reboot:
-
   - name: Run kubeadm init on master
     ansible.builtin.shell:
       cmd: |
@@ -169,14 +160,27 @@
       cmd: "{{ join_command }}"
     when: inventory_hostname != 'master'
 
+  - name: Make directory
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      mode: '0755'
+    loop:
+      - /home/kube/.kube
+      - /home/automation/.kube
+
   - name: Coppy configuration
     ansible.builtin.copy:
       src: /etc/kubernetes/admin.conf
-      dest: /home/kube/.kube/config
+      dest: "{{ item }}"
       owner: kube
       group: kube
       mode: '0644'
       remote_src: true
+    when: inventory_hostname == 'master'
+    loop:
+      - /home/kube/.kube/config
+      - /home/automation/.kube/config
 
   - name: Install metallb
     ansible.builtin.shell:
