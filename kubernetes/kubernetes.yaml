@@ -112,14 +112,14 @@
       state: directory
       mode: '0755'
 
-  # - name: Coppy configuration
-  #   ansible.builtin.copy:
-  #     src: /etc/kubernetes/admin.conf
-  #     dest: /home/kube/.kube/config
-  #     owner: kube
-  #     group: kube
-  #     mode: '0644'
-  #     remote_src: true
+  - name: Coppy configuration
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/kube/.kube/config
+      owner: kube
+      group: kube
+      mode: '0644'
+      remote_src: true
 
   - name: Delete swap
     ansible.builtin.lineinfile:
