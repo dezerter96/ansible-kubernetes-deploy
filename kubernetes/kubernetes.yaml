@@ -106,21 +106,6 @@
       password: "{{ password }}"
       state: present
 
-  - name: Make directory
-    ansible.builtin.file:
-      path: /home/kube/.kube
-      state: directory
-      mode: '0755'
-
-  - name: Coppy configuration
-    ansible.builtin.copy:
-      src: /etc/kubernetes/admin.conf
-      dest: /home/kube/.kube/config
-      owner: kube
-      group: kube
-      mode: '0644'
-      remote_src: true
-
   - name: Delete swap
     ansible.builtin.lineinfile:
       path: /etc/fstab
@@ -154,6 +139,21 @@
   - name: Reboot
     ansible.builtin.reboot:
 
+  - name: Make directory
+    ansible.builtin.file:
+      path: /home/kube/.kube
+      state: directory
+      mode: '0755'
+
+  - name: Coppy configuration
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/kube/.kube/config
+      owner: kube
+      group: kube
+      mode: '0644'
+      remote_src: true
+      
   - name: Run kubeadm init on master
     ansible.builtin.shell:
       cmd: |
