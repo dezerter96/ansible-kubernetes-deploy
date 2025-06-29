@@ -127,7 +127,7 @@
       - 6443
       - 10250
 
-  - name: Copy kubeadm-config.yaml to master
+  - name: Copy fille to master
     ansible.builtin.copy:
       src: "/share/cluster"
       dest: /home/kube/
@@ -135,6 +135,9 @@
       group: kube
       mode: '0644'
     when: inventory_hostname == 'master'
+
+  - name: Reboot
+    ansible.builtin.reboot:
 
   - name: Run kubeadm init on master
     ansible.builtin.shell:
