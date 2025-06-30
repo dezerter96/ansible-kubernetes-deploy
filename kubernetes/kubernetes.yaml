@@ -210,21 +210,13 @@
 
   - name: Wait for CRDs to be registered
     ansible.builtin.pause:
-      seconds: 60
+      seconds: 80
 
   - name: Config metallb
     ansible.builtin.shell:
       cmd: |
         cd /home/kube/cluster &&
-        kubectl apply -f metallb-addr-pool.yaml
-    when: inventory_hostname == 'master'
-    become: true
-    become_user: kube
-
-  - name: Config metallb
-    ansible.builtin.shell:
-      cmd: |
-        cd /home/kube/cluster &&
+        kubectl apply -f metallb-addr-pool.yaml &&
         kubectl apply -f metallb-advertise.yaml
     when: inventory_hostname == 'master'
     become: true
