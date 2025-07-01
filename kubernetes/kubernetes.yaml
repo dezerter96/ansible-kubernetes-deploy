@@ -117,7 +117,7 @@
       cmd: |
         swapoff -a
 
-  - name: Accept 6443 10250 port
+  - name: Accept 6443 10250 443 port
     ansible.posix.firewalld:
       port: "{{ item }}/tcp"
       permanent: true
@@ -126,6 +126,7 @@
     loop:
       - 6443
       - 10250
+      - 443
 
   - name: Copy fille to master
     ansible.builtin.copy:
@@ -210,7 +211,7 @@
 
   - name: Wait for CRDs to be registered
     ansible.builtin.pause:
-      seconds: 60
+      seconds: 80
 
   - name: Config metallb
     ansible.builtin.shell:
@@ -220,10 +221,6 @@
     when: inventory_hostname == 'master'
     become: true
     become_user: kube
-
-  - name: Wait for CRDs to be registered
-    ansible.builtin.pause:
-      seconds: 60
 
   - name: Config metallb
     ansible.builtin.shell:
