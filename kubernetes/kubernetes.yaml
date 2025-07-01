@@ -126,7 +126,26 @@
     loop:
       - 6443
       - 10250
-      - 443
+ 
+  - name: Create area kubernetes-pods
+    ansible.posix.firewalld:
+      zone: kubernetes-pods
+      state: present
+      permanent: yes
+
+  - name: USet target area kubernetes-pods na ACCEPT
+    ansible.posix.firewalld:
+      zone: kubernetes-pods
+      target: ACCEPT
+      state: enabled
+      permanent: yes
+
+  - name: Add subnet pods to area kubernetes-pods
+    ansible.posix.firewalld:
+      zone: kubernetes-pods
+      source: 10.244.0.0/16
+      permanent: yes
+      state: enabled
 
   - name: Copy fille to master
     ansible.builtin.copy:
