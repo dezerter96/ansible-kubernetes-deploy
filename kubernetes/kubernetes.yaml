@@ -117,7 +117,7 @@
       cmd: |
         swapoff -a
 
-  - name: Accept 6443 10250 443 port
+  - name: Accept 6443 10250 port
     ansible.posix.firewalld:
       port: "{{ item }}/tcp"
       permanent: true
@@ -127,25 +127,21 @@
       - 6443
       - 10250
  
-  - name: Create area kubernetes-pods
+  - name: Unlock network 10.244.0.0/16
     ansible.posix.firewalld:
-      zone: kubernetes-pods
-      state: present
-      permanent: yes
-
-  - name: USet target area kubernetes-pods na ACCEPT
-    ansible.posix.firewalld:
-      zone: kubernetes-pods
-      target: ACCEPT
+      rich_rule: 'rule family="ipv4" source address="10.244.0.0/16" accept'
+      permanent: true
       state: enabled
-      permanent: yes
+      immediate: true
+    become: yes
 
-  - name: Add subnet pods to area kubernetes-pods
+  - name: Unlock network 10.96.0.0/16
     ansible.posix.firewalld:
-      zone: kubernetes-pods
-      source: 10.244.0.0/16
-      permanent: yes
+      rich_rule: 'rule family="ipv4" source address="10.96.0.0/16" accept'
+      permanent: true
       state: enabled
+      immediate: true
+    become: yes
 
   - name: Copy fille to master
     ansible.builtin.copy:
