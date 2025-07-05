@@ -131,6 +131,8 @@
     loop:
       - 6443
       - 10250
+      - 443
+      - 8080
 
   - name: Copy fille to master
     ansible.builtin.copy:
@@ -204,6 +206,15 @@
     when: inventory_hostname == 'master'
     become: true
     become_user: kube
+
+  - name: Add interfaces cali+ to public zone
+    ansible.builtin.shell: |
+      sudo firewall-cmd --permanent --zone=public --add-interface="cali+"
+    register: add_cali_result
+    retries: 5
+    delay: 10
+    until: add_cali_result.rc == 0
+    ignore_errors: yes
 
   - name: Stop firewalld
     ansible.builtin.shell: |
