@@ -131,7 +131,7 @@
     loop:
       - 6443
       - 10250
- 
+
   - name: Copy fille to master
     ansible.builtin.copy:
       src: "/share/cluster"
@@ -204,6 +204,16 @@
     when: inventory_hostname == 'master'
     become: true
     become_user: kube
+
+  - name: Add interfaces cali+ to public zone
+    community.general.firewalld:
+      zone: public
+      interface: "cali+"
+      permanent: yes
+      state: enabled
+
+  - name: Reload firewalld
+    ansible.builtin.command: firewall-cmd --reload
 
   - name: Install metallb
     ansible.builtin.shell:
