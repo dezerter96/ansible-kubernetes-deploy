@@ -205,15 +205,15 @@
     become: true
     become_user: kube
 
-  - name: Add interfaces cali+ to public zone
-    community.general.firewalld:
-      zone: public
-      interface: "cali+"
-      permanent: yes
-      state: enabled
+  - name: Add interfaces cali+ to public zone (permanent)
+    ansible.builtin.command:
+      cmd: sudo firewall-cmd --permanent --zone=public --add-interface="cali+"
+    register: add_cali_interface
 
   - name: Reload firewalld
-    ansible.builtin.command: firewall-cmd --reload
+    ansible.builtin.command:
+      cmd: sudo firewall-cmd --reload
+    when: add_cali_interface is changed
 
   - name: Install metallb
     ansible.builtin.shell:
