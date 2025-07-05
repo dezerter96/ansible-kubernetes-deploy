@@ -208,12 +208,10 @@
   - name: Add interfaces cali+ to public zone (permanent)
     ansible.builtin.command:
       cmd: sudo firewall-cmd --permanent --zone=public --add-interface="cali+"
-    register: add_cali_interface
 
   - name: Reload firewalld
     ansible.builtin.command:
-      cmd: sudo firewall-cmd --reload
-    when: add_cali_interface is changed
+      cmd: sudo systemctl restart firewalld
 
   - name: Install metallb
     ansible.builtin.shell:
@@ -222,10 +220,6 @@
     when: inventory_hostname == 'master'
     become: true
     become_user: kube
-
-  - name: Wait for CRDs to be registered
-    ansible.builtin.pause:
-      seconds: 80
 
   - name: Config metallb
     ansible.builtin.shell:
