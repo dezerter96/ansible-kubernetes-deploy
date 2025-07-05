@@ -6,8 +6,13 @@
   tasks:
   - name: Install vim
     ansible.builtin.dnf:
-      name: vim
+      name: "{{ item }}"
       state: latest
+    loop:
+      - vim
+      - tcpdump
+      - telnet
+
 
   - name: Add moules to nodes
     ansible.builtin.copy:
@@ -127,22 +132,6 @@
       - 6443
       - 10250
  
-  # - name: Unlock network 10.244.0.0/16
-  #   ansible.posix.firewalld:
-  #     rich_rule: 'rule family="ipv4" source address="10.244.0.0/16" accept'
-  #     permanent: true
-  #     state: enabled
-  #     immediate: true
-  #   become: yes
-
-  # - name: Unlock network 10.96.0.0/16
-  #   ansible.posix.firewalld:
-  #     rich_rule: 'rule family="ipv4" source address="10.96.0.0/16" accept'
-  #     permanent: true
-  #     state: enabled
-  #     immediate: true
-  #   become: yes
-
   - name: Copy fille to master
     ansible.builtin.copy:
       src: "/share/cluster"
