@@ -179,6 +179,14 @@
       remote_src: true
     when: inventory_hostname == 'master'
 
+  - name: Create dir /home/kube/.ansible/tmp
+    file:
+      path: /home/kube/.ansible/tmp
+      state: directory
+      owner: kube
+      group: kube
+      mode: '1777'
+
   - name: Install calico
     ansible.builtin.shell:
       cmd: |
@@ -210,7 +218,7 @@
 
   - name: Wait for CRDs to be registered
     ansible.builtin.pause:
-      seconds: 120
+      seconds: 60
 
   - name: Config metallb
     ansible.builtin.shell:
