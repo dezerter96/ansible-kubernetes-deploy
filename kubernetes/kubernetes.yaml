@@ -208,6 +208,10 @@
     become: true
     become_user: kube
 
+  - name: Wait for CRDs to be registered
+    ansible.builtin.pause:
+      seconds: 60
+
   - name: Config metallb
     ansible.builtin.shell:
       cmd: |
