@@ -218,7 +218,7 @@
 
   - name: Wait for CRDs to be registered
     ansible.builtin.pause:
-      seconds: 60
+      seconds: 120
 
   - name: Config metallb
     ansible.builtin.shell:
