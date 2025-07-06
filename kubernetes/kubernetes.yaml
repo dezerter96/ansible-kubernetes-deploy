@@ -122,17 +122,10 @@
       cmd: |
         swapoff -a
 
-  - name: Accept 6443 10250 port
-    ansible.posix.firewalld:
-      port: "{{ item }}/tcp"
-      permanent: true
-      state: enabled
-      immediate: true
-    loop:
-      - 6443
-      - 10250
-      - 443
-      - 8080
+  - name: Disable firewalld
+    ansible.builtin.shell: |
+      sudo systemctl stop firewalld
+      sudo systemctl disable firewalld
 
   - name: Copy fille to master
     ansible.builtin.copy:
@@ -207,19 +200,6 @@
     become: true
     become_user: kube
 
-  - name: Add interfaces cali+ to public zone
-    ansible.builtin.shell: |
-      sudo firewall-cmd --permanent --zone=public --add-interface="cali+"
-    register: add_cali_result
-    retries: 5
-    delay: 10
-    until: add_cali_result.rc == 0
-    ignore_errors: yes
-
-  - name: Stop firewalld
-    ansible.builtin.shell: |
-      sudo systemctl stop firewalld
-
   - name: Install metallb
     ansible.builtin.shell:
       cmd: |
@@ -227,14 +207,6 @@
     when: inventory_hostname == 'master'
     become: true
     become_user: kube
-
-  - name: Wait for CRDs to be registered
-    ansible.builtin.pause:
-      seconds: 20
-
-  - name: Start firewalld
-    ansible.builtin.shell: |
-      sudo systemctl start firewalld
 
   - name: Config metallb
     ansible.builtin.shell:
