@@ -1,0 +1,239 @@
+---
+- name: Test
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Install vim
+    ansible.builtin.dnf:
+      name: "{{ item }}"
+      state: latest
+    loop:
+      - vim
+      - tcpdump
+      - telnet
+
+
+  - name: Add moules to nodes
+    ansible.builtin.copy:
+      dest: /etc/modules-load.d/k8s.conf
+      content: |
+        overlay
+        br_netfilter
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Config kernel moules
+    ansible.builtin.copy:
+      dest: /etc/sysctl.d/k8s.conf
+      content: |
+        net.bridge.bridge-nf-call-iptables = 1
+        net.ipv4.ip_forward = 1
+        net.bridge.bridge-nf-call-ip6tables = 1
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Reload parameters
+    ansible.builtin.shell:
+      cmd: sysctl --system 
+
+  - name: Install yum-utils
+    ansible.builtin.shell:
+      cmd: yum install -y yum-utils
+
+  - name: Add repository
+    ansible.builtin.shell:
+      cmd: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+  - name: Install containerd
+    ansible.builtin.shell:
+      cmd: dnf install containerd.io -y
+
+  - name: Make beckup config.toml
+    ansible.builtin.copy:
+      src: /etc/containerd/config.toml
+      dest: /etc/containerd/config.toml.bkp
+
+  - name: Install containerd
+    ansible.builtin.shell:
+      cmd: containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+
+  - name: Change SystemdCgroup to true
+    ansible.builtin.lineinfile:
+      path: /etc/containerd/config.toml
+      regexp: '\s*SystemdCgroup\s*=\s*false'
+      line: '            SystemdCgroup = true'
+      state: present
+
+  - name: Restart containerd service and set service to enable
+    ansible.builtin.systemd_service:
+      state: restarted
+      name: containerd
+      enabled: true
+
+  - name:  Add repo for kubernetes
+    ansible.builtin.copy:
+      dest: /etc/yum.repos.d/kubernetes.repo
+      content: |
+        [kubernetes]
+        name=Kubernetes
+        baseurl=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+        enabled=1
+        gpgcheck=1
+        gpgkey=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+        exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name:  Install kubernetes tools
+    yum:
+      name:
+        - kubelet
+        - kubeadm
+        - kubectl
+      state: present
+      disable_excludes: kubernetes
+
+  - name:  Enable kubelet service
+    ansible.builtin.systemd_service:
+      name: kubelet
+      enabled: true
+
+  - name: Adding user kube
+    ansible.builtin.user:
+      name: kube
+      groups: wheel
+      create_home: yes
+      update_password: always
+      password: "{{ password }}"
+      state: present
+
+  - name: Delete swap
+    ansible.builtin.lineinfile:
+      path: /etc/fstab
+      regexp: '^/dev/mapper/vg_root-lv_swap.*'
+      state: absent
+
+  - name: Disable swap
+    ansible.builtin.shell:
+      cmd: |
+        swapoff -a
+
+  - name: Disable firewalld
+    ansible.builtin.shell: |
+      sudo systemctl stop firewalld
+      sudo systemctl disable firewalld
+
+  - name: Copy fille to master
+    ansible.builtin.copy:
+      src: "/share/cluster"
+      dest: /home/kube/
+      owner: kube
+      group: kube
+      mode: '0644'
+    when: inventory_hostname == 'master'
+
+  - name: Reboot
+    ansible.builtin.reboot:
+
+  - name: Run kubeadm init on master
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/cluster &&
+        kubeadm init --config=kubeadm-config.yaml
+    when: inventory_hostname == 'master'
+    register: kubeadm_output
+
+  - name: Extract join details (MASTER ONLY)
+    ansible.builtin.set_fact:
+      kubeadm_join_command: >-
+        {{ kubeadm_output.stdout | regex_search('kubeadm join.*\n.*', multiline=True) | trim }}
+    when: inventory_hostname == 'master'
+
+  - name: Share join command with workers
+    ansible.builtin.set_fact:
+      join_command: "{{ hostvars['master']['kubeadm_join_command'] }}"
+    when: inventory_hostname != 'master'
+
+  - name: Join worker nodes to cluster
+    ansible.builtin.shell:
+      cmd: "{{ join_command }}"
+    when: inventory_hostname != 'master'
+
+  - name: Make directory
+    ansible.builtin.file:
+      path: /home/kube/.kube
+      state: directory
+      mode: '0755'
+
+  - name: Coppy configuration
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/kube/.kube/config
+      owner: kube
+      group: kube
+      mode: '0644'
+      remote_src: true
+    when: inventory_hostname == 'master'
+
+  - name: Create dir /home/kube/.ansible/tmp
+    file:
+      path: /home/kube/.ansible/tmp
+      state: directory
+      owner: kube
+      group: kube
+      mode: '1777'
+
+  - name: Install calico
+    ansible.builtin.shell:
+      cmd: |
+        kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/tigera-operator.yaml
+    when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
+
+  - name: Wait for CRDs to be registered
+    ansible.builtin.pause:
+      seconds: 60
+
+  - name: Config calico
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/cluster &&
+        kubectl apply -f custom-resources.yaml
+    when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
+
+  - name: Install metallb
+    ansible.builtin.shell:
+      cmd: |
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/refs/heads/main/config/manifests/metallb-native.yaml
+    when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
+
+  - name: Wait for CRDs to be registered
+    ansible.builtin.pause:
+      seconds: 120
+
+  - name: Config metallb
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/cluster &&
+        kubectl apply -f metallb-addr-pool.yaml
+    when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
+
+  - name: Config metallb
+    ansible.builtin.shell:
+      cmd: |
+        cd /home/kube/cluster &&
+        kubectl apply -f metallb-advertise.yaml
+    when: inventory_hostname == 'master'
+    become: true
+    become_user: kube
