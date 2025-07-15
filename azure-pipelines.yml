@@ -2,7 +2,7 @@ trigger:
 - none
 
 pool:
-  vmImage: ubuntu-latest
+  name: lab
 steps:
 - task: Bash@3
   inputs:
@@ -13,8 +13,8 @@ steps:
   inputs:
     ansibleInterface: 'remoteMachine'
     connectionOverSsh: 'ansible'
-    playbookSourceRemoteMachine: 'ansibleMachine'
+    playbookSourceRemoteMachine: 'agentMachine''
     playbookPathAnsibleMachineOnRemoteMachine: 'ansible/test.yaml'
-    inventoriesRemoteMachine: 'file'
-    inventoryFileSourceRemoteMachine: 'ansibleMachine'
-    inventoryFileAnsibleMachineOnRemoteMachine: 'ansible/inventory/hosts'
+    playbookRootRemoteMachine: '$(Build.SourcesDirectory)'
+    inventoryFileSourceRemoteMachine: 'agentMachine'
+    inventoryFileLinkedArtifactOnRemoteMachine: 'kubernetes/inventory/hosts'
