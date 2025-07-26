@@ -12,6 +12,7 @@
       - vim
       - tcpdump
       - telnet
+      - bash-completion
 
 
   - name: Add moules to nodes
