@@ -13,7 +13,6 @@
       - tcpdump
       - telnet
       - bash-completion
-      - htop
 
 
   - name: Add moules to nodes
