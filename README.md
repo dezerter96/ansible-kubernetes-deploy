@@ -1,8 +1,8 @@
-#🚀 Introduction 
+# 🚀 Introduction 
 This is a clone of the Azure DevOps repository.  
 The purpose of this repository is to deploy a Kubernetes cluster to virtual machines running in VirtualBox using Ansible.
 
-#🔨 Getting Started
+# 🔨 Getting Started
 This project aims to leverage the power of the Azure DevOps platform to deploy a fully functional Kubernetes cluster on virtual machines.
 
 Tools & Technologies 🔧
@@ -38,3 +38,4 @@ This setup provides a fully functional, software-defined networking, load-balanc
 - Services subnet: 10.96.0.0/16
 - External IP pool: 192.168.0.200 - 192.168.0.220 (MetalLB)
 - NGINX Ingress for external access
+
