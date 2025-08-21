@@ -3,7 +3,7 @@ This is a clone of the Azure DevOps repository. The purpose of this repository i
 
 # Getting Started
 Tools used for the project:
-![VirtualBox](https://banner2.cleanpng.com/20180628/uvo/aayh5mwd4.webp) VirtualBox
+![VirtualBox](https://commons.wikimedia.org/wiki/File:Virtualbox_logo.svg) VirtualBox
 ![Ansible](https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Ansible_Logo.png/32px-Ansible_Logo.png) Ansible
 
 # Build and Test
